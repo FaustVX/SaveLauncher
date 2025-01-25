@@ -1,13 +1,19 @@
 [
     {
-        "SteamId": 3066570,
+        "Launcher": {
+            "Type": "steam",
+            "ID": 3066570
+        },
         "Title": "Aotenjo",
         "OriginalSaveName": "player_1.aotenjoprofile",
         "Location": "%appdata%/../LocalLow/Aotenjo/Aotenjo",
         "SavePattern":"*.aotenjoprofile"
     },
     {
-        "SteamId": 2752720,
+        "Launcher": {
+            "Type": "steam",
+            "ID": 2752720
+        },
         "Title": "Dice Player One",
         "OriginalSaveName": "SaveFile.KD",
         "Location": "%appdata%/../LocalLow/KDREAM/DicePlayerOne",

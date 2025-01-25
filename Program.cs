@@ -27,9 +27,13 @@ static IEnumerable<Game> LoadGames()
     return games;
 }
 
-file sealed record class JsonGame(string Title, int SteamId, string OriginalSaveName, string Location, string SavePattern)
-: Game(Title, SteamId, OriginalSaveName)
+file sealed record class JsonGame(string Title, ILauncher Launcher, string OriginalSaveName, string Location, string SavePattern)
+: Game(Title, Launcher, OriginalSaveName)
 {
     public DirectoryInfo Directory => new(Environment.ExpandEnvironmentVariables(Location));
+
+    public override string ToString() => base.ToString();
+
+    protected override Type EqualityContract => base.EqualityContract;
 }
 

@@ -1,11 +1,9 @@
-using System.Diagnostics;
-
 internal interface INode
 {
     string Text { get; }
 }
 
-public record class Game(string Title, int SteamId, string OriginalSaveName) : INode
+public record class Game(string Title, ILauncher Launcher, string OriginalSaveName) : INode
 {
     public IEnumerable<SaveFile> SaveFiles { get; private set; } = default!;
     public IEnumerable<FileInfo> Files
@@ -22,13 +20,7 @@ public record class Game(string Title, int SteamId, string OriginalSaveName) : I
     }
 
     public void Run()
-    {
-        var psi = new ProcessStartInfo($"steam://rungameid/{SteamId}")
-        {
-            UseShellExecute = true,
-        };
-        Process.Start(psi)!.WaitForExit();
-    }
+    => Launcher.Run(this);
 }
 
 public readonly record struct SaveFile(Game Game, FileInfo File) : INode
