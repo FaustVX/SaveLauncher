@@ -1,10 +1,7 @@
 ﻿using System.Text.Json;
 using Spectre.Console;
 
-AnsiConsole.MarkupLine("[underline red]Hello[/] World!");
-
 var selection = new SelectionPrompt<INode>()
-    .Title("What's your [green]favorite fruit[/]?")
     .PageSize(5)
     .EnableSearch()
     .UseConverter(static save => save.Text)
