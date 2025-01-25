@@ -33,7 +33,16 @@ public record class Game(string Title, int SteamId, string OriginalSaveName) : I
 
 public readonly record struct SaveFile(Game Game, FileInfo File) : INode
 {
-    public readonly string Text => File.Name;
+    public readonly string Text
+    {
+        get
+        {
+            if (IsOriginalFile)
+                return $"[underline]{File.Name}[/]";
+            return File.Name;
+        }
+    }
+
     public bool IsOriginalFile => File.Name == Game.OriginalSaveName;
 
     public readonly void Swap()
