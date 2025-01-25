@@ -7,10 +7,10 @@ internal interface INode
 
 public record class Game(string Title, int SteamId, string OriginalSaveName) : INode
 {
-    public IEnumerable<SaveFile> SaveFiles { get; init; } = default!;
+    public IEnumerable<SaveFile> SaveFiles { get; private set; } = default!;
     public IEnumerable<FileInfo> Files
     {
-        init => SaveFiles = [.. GetSaveFiles(value)];
+        set => SaveFiles = [.. GetSaveFiles(value)];
     }
 
     public string Text => Title;
