@@ -49,6 +49,10 @@ public readonly record struct SaveFile(Game Game, FileInfo File) : INode
     {
         if (IsOriginalFile)
             return;
-        File.Replace(File.Directory!.GetFiles(Game.OriginalSaveName)[0].FullName, File.FullName);
+        var name = File.FullName;
+        var original = File.Directory!.GetFiles(Game.OriginalSaveName)[0];
+        original.MoveTo(original.FullName + ".bak");
+        File.MoveTo(Path.Combine(File.DirectoryName!, Game.OriginalSaveName));
+        original.MoveTo(name);
     }
 }
