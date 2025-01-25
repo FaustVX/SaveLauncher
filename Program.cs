@@ -12,8 +12,17 @@ foreach (var game in LoadGames())
 
 var save = (SaveFile)AnsiConsole.Prompt(selection);
 
-save.Swap();
-save.Game.Run();
+AnsiConsole.Prompt(
+    new SelectionPrompt<IAction>()
+    .PageSize(5)
+    .EnableSearch()
+    .UseConverter(static a => a.Title)
+    .MoreChoicesText("[grey](Move up and down to reveal more saves)[/]")
+    .AddChoices([
+        new Run(),
+        new Rename(),
+    ])
+).Execute(save);
 
 static IEnumerable<Game> LoadGames()
 {
@@ -33,4 +42,3 @@ file sealed record class JsonGame(string Title, ILauncher Launcher, string Origi
 
     protected override Type EqualityContract => base.EqualityContract;
 }
-
