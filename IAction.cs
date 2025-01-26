@@ -39,7 +39,7 @@ public sealed class Delete : IAction
 
     public void Execute(SaveFile saveFile)
     {
-        if (AnsiConsole.Confirm("Are you sure you want to delete this save file?"))
+        if (AnsiConsole.Confirm("Are you sure you want to delete this save file?", defaultValue: false))
         {
             saveFile.File.Delete();
             AnsiConsole.MarkupLine("[red]Save file deleted.[/]");
