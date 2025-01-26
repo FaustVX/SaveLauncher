@@ -28,7 +28,13 @@ while (true)
     foreach (var game in LoadGames())
         fileSelection.AddChoiceGroup(game, game.SaveFiles.Cast<INode>());
 
-    var save = (SaveFile)AnsiConsole.Prompt(fileSelection);
+    fileSelection.AddChoice(new Quit());
+
+    if (AnsiConsole.Prompt(fileSelection) is not SaveFile save)
+    {
+        AnsiConsole.MarkupLine("[red]Quitting the application...[/]");
+        break;
+    }
 
     (Environment.CurrentDirectory, var previousDir) = (save.File.DirectoryName!, Environment.CurrentDirectory);
 
@@ -59,4 +65,9 @@ file sealed record class JsonGame(string Title, ILauncher Launcher, string Origi
     public override string ToString() => base.ToString();
 
     protected override Type EqualityContract => base.EqualityContract;
+}
+
+file sealed class Quit : INode
+{
+    public string Text => "[red]Quit[/]";
 }
