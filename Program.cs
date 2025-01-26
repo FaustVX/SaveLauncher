@@ -4,7 +4,7 @@ using Spectre.Console;
 var actionSelection = new SelectionPrompt<IAction>()
     .PageSize(5)
     .EnableSearch()
-    .UseConverter(static a => a.Title)
+    .UseConverter(static action => action.Title)
     .MoreChoicesText("[grey](Move up and down to reveal more saves)[/]")
     .AddChoices([
         new Run(),
@@ -23,7 +23,7 @@ while (true)
         .PageSize(5)
         .EnableSearch()
         .UseConverter(static save => save.Text)
-        .MoreChoicesText("[grey](Move up and down to reveal more saves)[/]");
+        .MoreChoicesText(actionSelection.MoreChoicesText);
 
     foreach (var game in LoadGames())
         fileSelection.AddChoiceGroup(game, game.SaveFiles.Cast<INode>());
