@@ -1,60 +1,80 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 using Spectre.Console;
+using Spectre.Console.Cli;
 
-var actionSelection = new SelectionPrompt<IAction>()
-    .PageSize(5)
-    .EnableSearch()
-    .UseConverter(static action => action.Title)
-    .MoreChoicesText("[grey](Move up and down to reveal more saves)[/]")
-    .AddChoices([
-        new Run(),
-        new OpenInExplorer(),
-        new Rename(),
-        new Backup(),
-        new Restore(),
-        new Delete(),
-        new Compress(),
-        new Decompress(),
-    ]);
+var app = new CommandApp<RunCommand>();
+app.Run(args);
 
-while (true)
+file sealed class RunCommand : Command<RunCommand.Settings>
 {
-    var fileSelection = new SelectionPrompt<INode>()
-        .PageSize(5)
-        .EnableSearch()
-        .UseConverter(static save => save.Text)
-        .MoreChoicesText(actionSelection.MoreChoicesText);
-
-    foreach (var game in LoadGames())
-        fileSelection.AddChoiceGroup(game, game.SaveFiles.Cast<INode>());
-
-    fileSelection.AddChoice(new Quit());
-
-    if (AnsiConsole.Prompt(fileSelection) is not SaveFile save)
+    public sealed class Settings : CommandSettings
     {
-        AnsiConsole.MarkupLine("[red]Quitting the application...[/]");
-        break;
+        [Description("Path to config. Defaults to [underline]./config.json.[/]")]
+        [CommandArgument(0, "[configPath]")]
+        public string ConfigPath { get; init; } = "config.json";
     }
 
-    (Environment.CurrentDirectory, var previousDir) = (save.File.DirectoryName!, Environment.CurrentDirectory);
-
-    try
+    public override int Execute(CommandContext context, Settings settings)
     {
-        AnsiConsole.Prompt(actionSelection).Execute(save);
-    }
-    finally
-    {
-        Environment.CurrentDirectory = previousDir;
-    }
-}
+        var actionSelection = new SelectionPrompt<IAction>()
+            .PageSize(5)
+            .EnableSearch()
+            .UseConverter(static action => action.Title)
+            .MoreChoicesText("[grey](Move up and down to reveal more saves)[/]")
+            .AddChoices([
+                new Run(),
+                new OpenInExplorer(),
+                new Rename(),
+                new Backup(),
+                new Restore(),
+                new Delete(),
+                new Compress(),
+                new Decompress(),
+            ]);
 
-static IEnumerable<Game> LoadGames()
-{
-    var json = File.ReadAllText("config.json");
-    var games = JsonSerializer.Deserialize<IEnumerable<JsonGame>>(json)!;
-    foreach (var game in games)
-        game.Files = game.Directory.EnumerateFiles(game.SavePattern);
-    return games;
+        while (true)
+        {
+            var fileSelection = new SelectionPrompt<INode>()
+                .PageSize(5)
+                .EnableSearch()
+                .UseConverter(static save => save.Text)
+                .MoreChoicesText(actionSelection.MoreChoicesText);
+
+            foreach (var game in LoadGames(settings))
+                fileSelection.AddChoiceGroup(game, game.SaveFiles.Cast<INode>());
+
+            fileSelection.AddChoice(new Quit());
+
+            if (AnsiConsole.Prompt(fileSelection) is not SaveFile save)
+            {
+                AnsiConsole.MarkupLine("[red]Quitting the application...[/]");
+                break;
+            }
+
+            (Environment.CurrentDirectory, var previousDir) = (save.File.DirectoryName!, Environment.CurrentDirectory);
+
+            try
+            {
+                AnsiConsole.Prompt(actionSelection).Execute(save);
+            }
+            finally
+            {
+                Environment.CurrentDirectory = previousDir;
+            }
+        }
+
+        return 0;
+
+        static IEnumerable<Game> LoadGames(Settings settings)
+        {
+            var json = File.ReadAllText(settings.ConfigPath);
+            var games = JsonSerializer.Deserialize<IEnumerable<JsonGame>>(json)!;
+            foreach (var game in games)
+                game.Files = game.Directory.EnumerateFiles(game.SavePattern);
+            return games;
+        }
+    }
 }
 
 file sealed record class JsonGame(string Title, ILauncher Launcher, string OriginalSaveName, string Location, string SavePattern)
